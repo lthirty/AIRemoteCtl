@@ -10,7 +10,27 @@ set "CODEX_AUTO_START=1"
 set "CODEX_WS_URL=ws://127.0.0.1:8390"
 set "CODEX_BIND_URL=ws://127.0.0.1:8390"
 
+for /f "usebackq delims=" %%P in (`powershell -NoProfile -ExecutionPolicy Bypass -Command "$c=Get-NetTCPConnection -LocalPort %AIRCTL_PORT% -ErrorAction SilentlyContinue | Select-Object -First 1; if($c){$c.OwningProcess}"`) do set "AIRCTL_EXISTING_PID=%%P"
+
+if defined AIRCTL_EXISTING_PID (
+  echo.
+  echo AIRemoteCtl is already running on port %AIRCTL_PORT% ^(pid=%AIRCTL_EXISTING_PID%^).
+  echo.
+  choice /C YN /M "Stop the old instance and restart"
+  if errorlevel 2 (
+    echo.
+    echo Keeping existing instance. Close this window or run stop-airctl.bat when needed.
+    pause
+    exit /b 0
+  )
+  echo.
+  echo Stopping old AIRemoteCtl instance...
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='SilentlyContinue'; Stop-Process -Id %AIRCTL_EXISTING_PID% -Force"
+  timeout /t 1 /nobreak >nul
+)
+
 for /f "usebackq delims=" %%T in (`powershell -NoProfile -ExecutionPolicy Bypass -Command "[Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(18)).TrimEnd('=').Replace('+','-').Replace('/','_')"`) do set "AIRCTL_TOKEN=%%T"
+> ".airctl-token" echo %AIRCTL_TOKEN%
 
 echo.
 echo AIRemoteCtl starting...
