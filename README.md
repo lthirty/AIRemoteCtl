@@ -10,7 +10,9 @@
 start-airctl.bat
 ```
 
-窗口会显示手机访问地址和本次 token。使用期间保持窗口打开。
+第一次运行时，如果 Windows OpenSSH Server 还没启用，脚本会自动弹出管理员窗口完成 SSH 初始化。以后再双击同一个 `start-airctl.bat` 即可。
+
+窗口会显示手机浏览器控制台地址和本次 token。使用期间保持窗口打开。
 
 停止时双击：
 
@@ -59,7 +61,7 @@ $env:CODEX_BIND_URL="ws://127.0.0.1:8390"
 
 Litter 推荐走 SSH。手机不用打开 `8787` 网页，`8787` 是本项目自带的浏览器控制台。
 
-1. 电脑上右键 `setup-litter-ssh-admin.bat`，选择“以管理员身份运行”。
+1. 电脑上双击 `start-airctl.bat`。如果弹出 UAC 管理员授权，点“是”，让它启用 SSH。
 2. 保持手机和电脑在同一 Wi-Fi，或都接入同一个 Tailscale/ZeroTier 网络。
 3. 打开 Litter，进入 Discovery / Remote Servers。
 4. 选择添加 SSH server。
