@@ -76,6 +76,8 @@ Working directory: F:\01.AI\17.AIRemoteCtl
 
 密码使用 Windows 账户密码。Windows Hello PIN 通常不能用于 SSH。
 
+可先在电脑上双击 `test-ssh-login.bat` 验证密码。出现密码提示时输入 Windows 账户密码；如果输出 `SSH_OK`，说明 Litter 也可以用同样的用户名和密码连接。
+
 连接后，Litter 会通过 SSH 在电脑上解析 `codex.exe`，启动/复用 `codex app-server`，并通过 SSH tunnel 控制 Codex。不要把 `codex app-server` 直接绑定到公网地址。
 
 ## 后续可扩展
