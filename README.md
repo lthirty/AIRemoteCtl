@@ -55,6 +55,27 @@ $env:CODEX_BIND_URL="ws://127.0.0.1:8390"
 
 安全建议：`CODEX_BIND_URL` 保持 `127.0.0.1`。远程访问优先用 Tailscale、ZeroTier、SSH tunnel 或内网，不要把 Codex app-server 直接暴露到公网。
 
+## 用 Android Litter 连接
+
+Litter 推荐走 SSH。手机不用打开 `8787` 网页，`8787` 是本项目自带的浏览器控制台。
+
+1. 电脑上右键 `setup-litter-ssh-admin.bat`，选择“以管理员身份运行”。
+2. 保持手机和电脑在同一 Wi-Fi，或都接入同一个 Tailscale/ZeroTier 网络。
+3. 打开 Litter，进入 Discovery / Remote Servers。
+4. 选择添加 SSH server。
+5. 填：
+
+```text
+Host: 192.168.2.109
+Port: 22
+Username: lthir
+Working directory: F:\01.AI\17.AIRemoteCtl
+```
+
+密码使用 Windows 账户密码。Windows Hello PIN 通常不能用于 SSH。
+
+连接后，Litter 会通过 SSH 在电脑上解析 `codex.exe`，启动/复用 `codex app-server`，并通过 SSH tunnel 控制 Codex。不要把 `codex app-server` 直接绑定到公网地址。
+
 ## 后续可扩展
 
 - 二维码配对和一次性 token
