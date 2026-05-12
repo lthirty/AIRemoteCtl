@@ -80,6 +80,8 @@ Working directory: F:\01.AI\17.AIRemoteCtl
 
 连接后，Litter 会通过 SSH 在电脑上解析 `codex.exe`，启动/复用 `codex app-server`，并通过 SSH tunnel 控制 Codex。不要把 `codex app-server` 直接绑定到公网地址。
 
+如果 Litter 弹出 `Install Codex? / Codex not found on remote host`，先点 `Cancel`。然后重新双击 `start-airctl.bat`，允许管理员窗口完成 SSH/Codex PATH 修复，再回 Litter 重新连接。
+
 ## 后续可扩展
 
 - 二维码配对和一次性 token

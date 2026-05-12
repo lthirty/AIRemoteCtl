@@ -79,6 +79,21 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "  Enable-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' | Out-Null" ^
   "}" ^
   "Write-Host '';" ^
+  "$codexCandidates=@((Join-Path $env:LOCALAPPDATA 'OpenAI\Codex\bin\codex.exe')) + @(Get-ChildItem -Path (Join-Path $env:ProgramFiles 'WindowsApps') -Filter codex.exe -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like '*OpenAI.Codex_*\\app\\resources\\codex.exe' } | Select-Object -ExpandProperty FullName);" ^
+  "$codex=$codexCandidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1;" ^
+  "if($codex) {" ^
+  "  $dir=Split-Path $codex -Parent;" ^
+  "  foreach($scope in @('User','Machine')) {" ^
+  "    $path=[Environment]::GetEnvironmentVariable('Path',$scope);" ^
+  "    $parts=($path -split ';') | Where-Object { $_ -ne '' };" ^
+  "    if($parts -notcontains $dir) {" ^
+  "      [Environment]::SetEnvironmentVariable('Path',((@($parts)+$dir) -join ';'),$scope);" ^
+  "      Write-Host ('Added Codex to ' + $scope + ' PATH: ' + $dir);" ^
+  "    }" ^
+  "  }" ^
+  "  Restart-Service sshd;" ^
+  "}" ^
+  "Write-Host '';" ^
   "Write-Host 'OpenSSH Server status:';" ^
   "Get-Service sshd | Format-Table Name,Status,StartType;" ^
   "Write-Host '';" ^
@@ -111,6 +126,10 @@ if not defined CODEX_BIN (
   pause
   exit /b 1
 )
+
+for %%D in ("%CODEX_BIN%") do set "CODEX_BIN_DIR=%%~dpD"
+set "CODEX_BIN_DIR=%CODEX_BIN_DIR:~0,-1%"
+call :ensure_codex_on_user_path
 
 for /f "usebackq delims=" %%P in (`powershell -NoProfile -ExecutionPolicy Bypass -Command "$c=Get-NetTCPConnection -LocalPort %AIRCTL_PORT% -ErrorAction SilentlyContinue | Select-Object -First 1; if($c){$c.OwningProcess}"`) do set "AIRCTL_EXISTING_PID=%%P"
 
@@ -161,3 +180,19 @@ node src\server.js
 echo.
 echo AIRemoteCtl stopped.
 pause
+exit /b 0
+
+:ensure_codex_on_user_path
+if not defined CODEX_BIN_DIR exit /b 0
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$dir='%CODEX_BIN_DIR%';" ^
+  "$userPath=[Environment]::GetEnvironmentVariable('Path','User');" ^
+  "$parts=($userPath -split ';') | Where-Object { $_ -ne '' };" ^
+  "if($parts -notcontains $dir) {" ^
+  "  $next=(@($parts)+$dir) -join ';';" ^
+  "  [Environment]::SetEnvironmentVariable('Path',$next,'User');" ^
+  "  Write-Host ('Added Codex to user PATH for Litter SSH: ' + $dir);" ^
+  "} else {" ^
+  "  Write-Host ('Codex already on user PATH for Litter SSH: ' + $dir);" ^
+  "}"
+exit /b 0
