@@ -51,6 +51,7 @@ server.listen(config.port, config.host, async () => {
     console.log(`  ${url}${config.token ? `?token=${encodeURIComponent(config.token)}` : ""}`);
   }
   console.log(`Workspace: ${config.workspace}`);
+  console.log(`Codex bin: ${config.codexBin}`);
   console.log(`Codex WS: ${config.codexWsUrl}`);
   codex.ensureConnected().catch((error) => {
     console.warn(`Codex connection deferred: ${error.message}`);

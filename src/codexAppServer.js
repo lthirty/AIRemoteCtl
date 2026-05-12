@@ -35,12 +35,20 @@ export class CodexAppServer extends EventEmitter {
   }
 
   startProcess() {
-    this.proc = spawn("codex", ["app-server", "--listen", this.config.codexBindUrl], {
+    this.proc = spawn(this.config.codexBin, ["app-server", "--listen", this.config.codexBindUrl], {
       cwd: this.config.workspace,
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
     });
     this.status.startedProcess = true;
+    this.proc.once("error", (error) => {
+      this.proc = null;
+      this.status.startedProcess = false;
+      this.status.connected = false;
+      this.status.lastError = `failed to start Codex app-server with ${this.config.codexBin}: ${error.message}`;
+      this.emit("status", this.statusSnapshot());
+      this.emit("log", this.status.lastError);
+    });
     this.proc.stdout.on("data", (chunk) => this.emit("log", chunk.toString()));
     this.proc.stderr.on("data", (chunk) => this.emit("log", chunk.toString()));
     this.proc.once("exit", (code, signal) => {

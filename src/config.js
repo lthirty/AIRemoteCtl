@@ -5,11 +5,13 @@ import crypto from "node:crypto";
 
 export function readConfig() {
   const workspace = process.env.AIRCTL_WORKSPACE || process.cwd();
+  const envToken = (process.env.AIRCTL_TOKEN || "").trim();
   return {
     host: process.env.AIRCTL_HOST || "0.0.0.0",
     port: integerEnv("AIRCTL_PORT", 8787),
-    token: process.env.AIRCTL_TOKEN || crypto.randomBytes(18).toString("base64url"),
+    token: envToken || crypto.randomBytes(18).toString("base64url"),
     workspace: path.resolve(workspace),
+    codexBin: (process.env.CODEX_BIN || "codex").trim() || "codex",
     codexWsUrl: process.env.CODEX_WS_URL || "ws://127.0.0.1:8390",
     codexAutoStart: process.env.CODEX_AUTO_START !== "0",
     codexBindUrl: process.env.CODEX_BIND_URL || "ws://127.0.0.1:8390",
